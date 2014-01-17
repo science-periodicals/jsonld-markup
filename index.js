@@ -91,7 +91,7 @@ function _resolvePrefix(ctx){
     }
   }
   
-  return ctx;
+  return ectx;
 };
 
 

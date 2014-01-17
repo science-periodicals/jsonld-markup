@@ -4,12 +4,11 @@ var assert = require('assert')
 
 describe('jsonld-html-view', function(){
 
-
   var ctx = {
     '@base': 'http://base.com/',
     ex: 'http://ex.com/',
     a: 'http://ex.com/a',
-    b: 'http://ex.com/b',
+    b: 'ex:b',
     url1: {'@id': 'ex:1', '@type': '@id'},
     url2: {'@id': 'ex:2', '@type': '@id'},
     url3: {'@id': 'ex:3', '@type': '@id'},
