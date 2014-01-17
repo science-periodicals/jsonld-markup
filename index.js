@@ -3,7 +3,6 @@ var isUrl = require('is-url')
   , clone = require('clone')
   , url = require('url');
 
-
 function urlify(obj, ctx){
   obj = clone(obj);
   
@@ -13,25 +12,29 @@ function urlify(obj, ctx){
   return '<pre><code>' + s + '</code></pre>';
 };
 
+function urlifyValues(x, ctx, isId){
+  ctx = _resolvePrefix(ctx);
 
-function urlifyValues(x, ctx){
-
-  if(typeof x === 'string'){    
+  if(typeof x === 'string' && isId){    
     return _urlify(x, ctx);
   }
 
   for(var key in x){
     var val = x[key];
     if ( key in ctx ){
-      if( (typeof val === 'string') && ( ((typeof ctx[key] === 'object') && (ctx[key]['@type'] === '@id')) || isUrl(ctx[key])) ){
+      if( (typeof val === 'string') && (typeof ctx[key] === 'object') && (ctx[key]['@type'] === '@id') ){
         x[key] = _urlify(val, ctx);
       } else if (Array.isArray(val)){
         x[key] = val.map(function(x){
-          return urlifyValues(x, ctx);
+          return urlifyValues(x, ctx, (typeof ctx[key] === 'object') && (ctx[key]['@type'] === '@id'));
         });
       } else if (typeof val === 'object'){
         urlifyValues(val, ctx);
       }
+    } else if(key === '@id'){
+      x[key] = _urlify(val, ctx, {class: 'jsonld-id'});
+    } else  if(key === '@type') {
+      x[key] = _urlify(ctx[val]['@id'] || val, ctx, {key:val, class: 'jsonld-type'});
     }
   };
 
@@ -44,22 +47,38 @@ function urlifyKeys(s, ctx){
 
   var re = new RegExp(Object.keys(ctx)
                       .filter(function(x) {return x.charAt(0) !== '@'; })
+                      .concat(['@id', '@type'])
                       .map(function(x) {return '"(' + x + ')":';})
                       .join('|'), 'g');
 
   return s.replace(re, function(){
-    var key = Array.prototype.slice.call(arguments, 1, arguments.length-2).filter(function(x){return x;});
-    var absUrl = _urlify((typeof ctx[key] === 'string')? ctx[key] : ctx[key]['@id'], ctx, key);
-    return '"' + absUrl + '":'; 
+    var key = Array.prototype.slice.call(arguments, 1, arguments.length-2).filter(function(x){return x;})[0];
+
+    if(key === '@id'){
+      return util.format('"' + "<span class='jsonld-id'>%s</span>" + '":', key);
+    } else if (key === '@type'){
+      return util.format('"' + "<span class='jsonld-type'>%s</span>" + '":', key);
+    } else {
+      var absUrl = _urlify((typeof ctx[key] === 'string')? ctx[key] : ctx[key]['@id'], ctx, {key:key, class: 'jsonld-key'});
+      return '"' + absUrl + '":'; 
+    }
+
   });
 };
 
 
-function _urlify (x, ctx, key){
+function _urlify (x, ctx, opts){
   
-  var absUrl = (isUrl(x))? x: url.resolve(ctx['@base'], x);
+  opts = opts || {};
 
-  return util.format("<a href='%s'>%s</a>", absUrl, key || absUrl); //single quote to have valid key if we JSON.parse
+  //TODO fix isUrl for localhost:3000 <- return false
+  var absUrl;
+  try{
+    absUrl = (isUrl(x))? x: url.resolve(ctx['@base'], x);
+  } catch(e){
+    absUrl = x;
+  }
+  return util.format("<a %shref='%s'>%s</a>", (opts.class) ? "class='" + opts.class + "' ": '',  absUrl, opts.key || absUrl); //single quote to have valid key if we JSON.parse
 };
 
 /**
@@ -70,13 +89,14 @@ function _resolvePrefix(ctx){
 
   var ectx = {};
 
-  for(var key in ctx){    
+  for(var key in ctx){
+   
     if(typeof ctx[key] === 'string'){
       if(isUrl(ctx[key]) || (ctx[key].indexOf(':') === -1)){
         ectx[key] = ctx[key];
       } else { //prefix
         var splt = ctx[key].split(':');
-        ectx[key] = url.resolve(ctx[splt[0]], splt[1]);  
+        ectx[key] = (splt[0] in ctx) ? url.resolve(ctx[splt[0]] , splt[1]) : ctx[key];  
       }
     } else {
 
@@ -85,7 +105,7 @@ function _resolvePrefix(ctx){
       } else { //prefix
         var splt = ctx[key]['@id'].split(':');
         ectx[key] = ctx[key];
-        ectx[key]['@id'] = url.resolve(ctx[splt[0]], splt[1]);  
+        ectx[key]['@id'] = (splt[0] in ctx) ? url.resolve(ctx[splt[0]] , splt[1]) : ctx[key]['@id'];  
       }
      
     }
@@ -93,8 +113,6 @@ function _resolvePrefix(ctx){
   
   return ectx;
 };
-
-
 
 exports.urlify = urlify;
 exports.urlifyValues = urlifyValues;

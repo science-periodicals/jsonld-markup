@@ -1,6 +1,6 @@
 {
   "name": "jsonld-html-view",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "add <a> tags where needed",
   "main": "index.js",
   "scripts": {
