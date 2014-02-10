@@ -28,7 +28,7 @@ describe('jsonld-html-view', function(){
       }
     }
   };
-    
+  
   it('should urlify values', function(){
     var obj = jsonldHtmlView.urlifyValues(clone(x), ctx);
 
