@@ -1,123 +1,127 @@
-var isUrl = require('is-url')
-  , util = require('util')
-  , clone = require('clone')
-  , url = require('url');
+// json to html conversion is adapted from https://github.com/mafintosh/json-markup
 
-function urlify(obj, ctx){
-  obj = clone(obj);
-  
-  obj = urlifyValues(obj, ctx);
-  var s = urlifyKeys(JSON.stringify(obj, null, 2), ctx);
-  
-  return '<pre><code>' + s + '</code></pre>';
-};
+(function() {
 
-function urlifyValues(x, ctx, isId){
-  ctx = _resolvePrefix(ctx);
+  function jsonldHtmlView(doc, ctx, opts) {
+    ctx = ctx || {};
+    opts = opts || {};
 
-  if(typeof x === 'string' && isId){    
-    return _urlify(x, ctx);
-  }
+    var INDENT = new Array(opts.indent || 2).join(' ');
 
-  for(var key in x){
-    var val = x[key];
-    if ( key in ctx ){
-      if( (typeof val === 'string') && (typeof ctx[key] === 'object') && (ctx[key]['@type'] === '@id') ){
-        x[key] = _urlify(val, ctx);
-      } else if (Array.isArray(val)){
-        x[key] = val.map(function(x){
-          return urlifyValues(x, ctx, (typeof ctx[key] === 'object') && (ctx[key]['@type'] === '@id'));
-        });
-      } else if (typeof val === 'object'){
-        urlifyValues(val, ctx);
+    var indent = '';
+
+    function forEach(list, start, end, fn, _key) {
+      if (!list.length) return start+' '+end;
+
+      var out = start+'\n';
+
+      indent += INDENT;
+      list.forEach(function(key, i) {
+        out += indent + fn(key, _key) + (i < list.length-1 ? ',' : '') + '\n';
+      });
+      indent = indent.slice(0, -INDENT.length);
+
+      return out + indent + end;
+    };
+
+    function visit(obj, _key) {
+      if (obj === undefined) return '';
+
+      switch (type(obj)) {
+        case 'boolean':
+	  return '<span class="json-markup-bool">' + obj + '</span>';
+
+        case 'number':
+	  return '<span class="json-markup-number">' + obj + '</span>';
+
+        case 'null':
+	  return '<span class="json-markup-null">null</span>\n';
+
+        case 'string':
+          var href;
+          if (_key && ((_key === '@type') ||  (_key in ctx && ctx[_key]['@type'] === '@id'))) {
+            if (isUrl(obj)) {
+              href = obj;
+            } else if (~obj.indexOf(':') && (obj.split(':')[0] in ctx)) {
+              var splt = obj.split(':');
+              href = (ctx[splt[0]]['@id'] || ctx[splt[0]]) + splt.slice(1).join(':');
+            } else if (_key === '@type' && ctx['@vocab']) {
+              href = ctx['@vocab'] + obj;
+            } else if (ctx['@base']) {
+              href = ctx['@base'] + obj;
+            }
+          }
+          var mvalue;
+          if (href) {
+            mvalue = '<a href="' + href + '">' + obj + '</a>';
+          } else {
+            mvalue = escape(obj.replace(/\n/g, '\n' + indent));
+          }
+
+	  return '<span class="json-markup-string">"' + mvalue + '"</span>';
+
+
+        case 'link':
+	  return '<span class="json-markup-string">"<a href="' + escape(obj)+'">'+escape(obj) + '</a>"</span>';
+
+        case 'array':
+	  return forEach(obj, '[', ']', visit, _key);
+
+        case 'object':
+	  var keys = Object.keys(obj).filter(function(key) {
+	    return obj[key] !== undefined;
+	  });
+
+	  return forEach(keys, '{', '}', function(key) {
+            var href;
+            if (key in ctx) {
+              href = ctx[key]['@id'] || ctx[key];
+            } else if (isUrl(key)) {
+              href = key;
+            } else if (~key.indexOf(':') && (key.split(':')[0] in ctx)) {
+              var splt = key.split(':');
+              href = (ctx[splt[0]]['@id'] || ctx[splt[0]]) + splt.slice(1).join(':');
+            } else if (ctx['@vocab'] && key.charAt(0) !== '@') {
+              href = ctx['@vocab'] + key;
+            }
+
+            var mkey;
+            if (href) {
+              mkey = '<a href="' + href + '">' + key + '</a>';
+            } else {
+              mkey = key;
+            }
+
+	    return '<span class="json-markup' + ((key.charAt(0) === '@')? '-at-key' : '-key' ) + '">'+ mkey + ':</span> ' + visit(obj[key], key);
+	  });
       }
-    } else if(key === '@id'){
-      x[key] = _urlify(val, ctx, {class: 'jsonld-id'});
-    } else  if(key === '@type') {      
-      if(ctx[val] || isUrl(val)){
-        x[key] = _urlify( ctx[val]['@id'] || val, ctx, {key:val, class: 'jsonld-type'});
-      }
-    }
+
+      return '';
+    };
+
+    return '<div class="json-markup">' + visit(doc) + '</div>';
   };
 
-  return x;
-};
-
-
-function urlifyKeys(s, ctx){
-  ctx = _resolvePrefix(ctx);
-
-  var re = new RegExp(Object.keys(ctx)
-                      .filter(function(x) {return x.charAt(0) !== '@'; })
-                      .concat(['@id', '@type'])
-                      .map(function(x) {return '"(' + x + ')":';})
-                      .join('|'), 'g');
-
-  return s.replace(re, function(){
-    var key = Array.prototype.slice.call(arguments, 1, arguments.length-2).filter(function(x){return x;})[0];
-
-    if(key === '@id'){
-      return util.format('"' + "<span class='jsonld-id'>%s</span>" + '":', key);
-    } else if (key === '@type'){
-      return util.format('"' + "<span class='jsonld-type'>%s</span>" + '":', key);
-    } else {
-      var absUrl = _urlify((typeof ctx[key] === 'string')? ctx[key] : ctx[key]['@id'], ctx, {key:key, class: 'jsonld-key'});
-      return '"' + absUrl + '":'; 
-    }
-
-  });
-};
-
-
-function _urlify (x, ctx, opts){
-  
-  opts = opts || {};
-
-  //TODO fix isUrl for localhost:3000 <- return false
-  var absUrl;
-  try{
-    absUrl = (isUrl(x))? x: url.resolve(ctx['@base'], x);
-  } catch(e){
-    absUrl = x;
+  function isUrl(str) {
+    return /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(str);
   }
-  return util.format("<a %shref='%s'>%s</a>", (opts.class) ? "class='" + opts.class + "' ": '',  absUrl, opts.key || absUrl); //single quote to have valid key if we JSON.parse
-};
 
-/**
- * suppose that only values can have prefix
- */
-function _resolvePrefix(ctx){
-  ctx = clone(ctx);
+  function type(obj) {
+    if (obj === null) return 'null';
+    if (Array.isArray(obj)) return 'array';
+    if (typeof obj === 'string' && isUrl(obj)) return 'link';
 
-  var ectx = {};
+    return typeof obj;
+  };
 
-  for(var key in ctx){
-   
-    if(typeof ctx[key] === 'string'){
-      if(isUrl(ctx[key]) || (ctx[key].indexOf(':') === -1)){
-        ectx[key] = ctx[key];
-      } else { //prefix
-        var splt = ctx[key].split(':');
-        ectx[key] = (splt[0] in ctx) ? url.resolve(ctx[splt[0]] , splt[1]) : ctx[key];  
-      }
-    } else {
+  function escape(str) {
+    return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  };
 
-      if(isUrl(ctx[key]['@id']) || (ctx[key]['@id'].indexOf(':') === -1)){
-        ectx[key] = ctx[key];
-      } else { //prefix
-        var splt = ctx[key]['@id'].split(':');
-        ectx[key] = ctx[key];
-        ectx[key]['@id'] = (splt[0] in ctx) ? url.resolve(ctx[splt[0]] , splt[1]) : ctx[key]['@id'];  
-      }
-     
-    }
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = jsonldVis;
+  } else {
+    window.jsonldHtmlView = jsonldHtmlView;
   }
-  
-  return ectx;
-};
 
-
-exports.urlify = urlify;
-exports.urlifyValues = urlifyValues;
-exports.urlifyKeys = urlifyKeys;
- 
+})();

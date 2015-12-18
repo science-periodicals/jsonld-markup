@@ -1,31 +1,20 @@
 {
   "name": "jsonld-html-view",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "add <a> tags where needed",
   "main": "index.js",
-  "scripts": {
-    "test": "./node_modules/.bin/mocha"
-  },
   "repository": {
     "type": "git",
-    "url": "git://github.com/standard-analytics/jsonld-html-view.git"
+    "url": "git://github.com/scienceai/jsonld-html-view.git"
   },
   "keywords": [
     "jsonld",
-    "html",
-    "links"
+    "html"
   ],
-  "author": "Sebastien Ballesteros",
-  "license": "MIT",
+  "author": "Sebastien Ballesteros <sebastien@standardanalytics.io>",
+  "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/standard-analytics/jsonld-html-view/issues"
+    "url": "https://github.com/scienceai/jsonld-html-view/issues"
   },
-  "homepage": "https://github.com/standard-analytics/jsonld-html-view",
-  "dependencies": {
-    "is-url": "~0.1.0",
-    "clone": "~0.1.11"
-  },
-  "devDependencies": {
-    "mocha": "~1.17.0"
-  }
+  "homepage": "https://github.com/scienceai/jsonld-html-view"
 }

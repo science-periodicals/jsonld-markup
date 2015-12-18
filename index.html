@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="jsonld-html-view.css">
+    <title>jsonld-html-view example</title>
+  </head>
+  <body>
+
+    <pre><code>
+{
+  "@context": "http://example.com/context",
+  "@id": "http://example.com",
+  "@type": "Person",
+  "sameAs": [
+    "http://twitter.com/me",
+    "http://facebook.com/me"
+  ],
+  "affiliation": {
+    "@id": "http://example.com/corporation",
+    "@type": "Corporation",
+    "name": "Ld inc",
+    "address": {
+      "@type": "PostalAddress",
+      "sa:Country": "USA"
+    },
+    "funder": [
+      {
+        "@id": "http://example.com/bush"
+      },
+      "tednelson",
+      "sa:engelbart"
+    ]
+  }
+}
+    </code></pre>
+
+    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript">
+     var $code = document.querySelector('code');
+     var data = JSON.parse($code.textContent.trim());
+     $code.innerHTML = jsonldHtmlView(data, {
+       "@base": "http://example.com/",
+       "@vocab": "http://schema.org/",
+       "sa": "http://ns.science.ai#",
+       "name": "http://ontology/name",
+       "funder": {
+         "@id": "http://schema.org/funder",
+         "@type": "@id"
+       }
+     });
+    </script>
+  </body>
+</html>
