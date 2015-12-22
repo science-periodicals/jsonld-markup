@@ -4,8 +4,8 @@ jsonld-markup
 Pretty print [JSON-LD](http://json-ld.org/) to HTML, adding hyperlinks to the keys (from the
 JSON-LD context).
 
-jsonld-markup is (adapted from
-[json-markup](https://github.com/mafintosh/json-markup)).
+jsonld-markup is adapted from
+[json-markup](https://github.com/mafintosh/json-markup).
 
 
 ```
