@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="jsonld-html-view.css">
-    <title>jsonld-html-view example</title>
+    <link rel="stylesheet" type="text/css" href="jsonld-markup.css">
+    <title>jsonld-markup example</title>
   </head>
   <body>
 
@@ -18,7 +18,7 @@
     "http://facebook.com/me"
   ],
   "affiliation": {
-    "@id": "http://example.com/corporation",
+    "id": "http://example.com/corporation",
     "@type": "Corporation",
     "name": "Ld inc",
     "address": {
@@ -40,14 +40,19 @@
     <script type="text/javascript">
      var $code = document.querySelector('code');
      var data = JSON.parse($code.textContent.trim());
-     $code.innerHTML = jsonldHtmlView(data, {
+     $code.innerHTML = jsonldMarkup(data, {
        "@base": "http://example.com/",
        "@vocab": "http://schema.org/",
+       "id": "@id",
        "sa": "http://ns.science.ai#",
        "name": "http://ontology/name",
+       "sameAs": {
+         "@container": "@set"
+       },
        "funder": {
          "@id": "http://schema.org/funder",
-         "@type": "@id"
+         "@type": "@id",
+         "@container": "@list"
        }
      });
     </script>

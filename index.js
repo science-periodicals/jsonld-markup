@@ -2,7 +2,7 @@
 
 (function() {
 
-  function jsonldHtmlView(doc, ctx, opts) {
+  function jsonldMarkup(doc, ctx, opts) {
     ctx = ctx || {};
     opts = opts || {};
 
@@ -11,9 +11,9 @@
     var indent = '';
 
     function forEach(list, start, end, fn, _key) {
-      if (!list.length) return start+' '+end;
+      if (!list.length) return start + ' ' + end;
 
-      var out = start+'\n';
+      var out = start + '\n';
 
       indent += INDENT;
       list.forEach(function(key, i) {
@@ -29,13 +29,13 @@
 
       switch (type(obj)) {
         case 'boolean':
-	  return '<span class="json-markup-bool">' + obj + '</span>';
+	  return '<span class="jsonld-markup-bool">' + obj + '</span>';
 
         case 'number':
-	  return '<span class="json-markup-number">' + obj + '</span>';
+	  return '<span class="jsonld-markup-number">' + obj + '</span>';
 
         case 'null':
-	  return '<span class="json-markup-null">null</span>\n';
+	  return '<span class="jsonld-markup-null">null</span>\n';
 
         case 'string':
           var href;
@@ -58,14 +58,16 @@
             mvalue = escape(obj.replace(/\n/g, '\n' + indent));
           }
 
-	  return '<span class="json-markup-string">"' + mvalue + '"</span>';
-
+	  return '<span class="jsonld-markup-string">"' + mvalue + '"</span>';
 
         case 'link':
-	  return '<span class="json-markup-string">"<a href="' + escape(obj)+'">'+escape(obj) + '</a>"</span>';
+	  return '<span class="jsonld-markup-string">"<a href="' + escape(obj)+'">'+escape(obj) + '</a>"</span>';
 
         case 'array':
-	  return forEach(obj, '[', ']', visit, _key);
+          var isList = _key && (_key in ctx && ctx[_key]['@container'] === '@list');
+          var openBracket = '<span class="jsonld-markup-' + (isList ? 'list': 'set') + '">[</span>'
+          var closeBracket = '<span class="jsonld-markup-' + (isList ? 'list': 'set') + '">]</span>'
+          return forEach(obj, openBracket, closeBracket, visit, _key);
 
         case 'object':
 	  var keys = Object.keys(obj).filter(function(key) {
@@ -73,9 +75,26 @@
 	  });
 
 	  return forEach(keys, '{', '}', function(key) {
-            var href;
+            var href, isKeywordMapping;
+
             if (key in ctx) {
-              href = ctx[key]['@id'] || ctx[key];
+              if (ctx[key]['@id']) {
+                href = ctx[key]['@id'];
+              } else {
+                // we protect ourselves from case where ctx[key] is for instance {"@container": "@list"}
+                if (typeof ctx[key] === 'object') {
+                  if (ctx['@vocab']) {
+                    href = ctx['@vocab'] + key;
+                  }
+                } else {
+                  if (ctx[key].charAt(0) === '@') {
+                    // keyword mapping e.g id -> @id
+                    isKeywordMapping = ctx[key];
+                  } else {
+                    href = ctx[key];
+                  }
+                }
+              }
             } else if (isUrl(key)) {
               href = key;
             } else if (~key.indexOf(':') && (key.split(':')[0] in ctx)) {
@@ -85,21 +104,24 @@
               href = ctx['@vocab'] + key;
             }
 
-            var mkey;
-            if (href) {
-              mkey = '<a href="' + href + '">' + key + '</a>';
+            if (isKeywordMapping) {
+	      return '<span class="jsonld-markup-key-' + isKeywordMapping.slice(1) + '">'+ '<abbr title="' + isKeywordMapping + '">' + key  + '</abbr>:</span> ' + visit(obj[key], key);
             } else {
-              mkey = key;
+              var mkey;
+              if (href) {
+                mkey = '<a href="' + href + '">' + key + '</a>';
+              } else {
+                mkey = key;
+              }
+	      return '<span class="jsonld-markup-key' + ((key.charAt(0) === '@')? ('-' + key.slice(1)) : '' ) + '">'+ mkey + ':</span> ' + visit(obj[key], key);
             }
-
-	    return '<span class="json-markup' + ((key.charAt(0) === '@')? '-at-key' : '-key' ) + '">'+ mkey + ':</span> ' + visit(obj[key], key);
 	  });
       }
 
       return '';
     };
 
-    return '<div class="json-markup">' + visit(doc) + '</div>';
+    return '<div class="jsonld-markup">' + visit(doc) + '</div>';
   };
 
   function isUrl(str) {
@@ -119,9 +141,9 @@
   };
 
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = jsonldVis;
+    module.exports = jsonldMarkup;
   } else {
-    window.jsonldHtmlView = jsonldHtmlView;
+    window.jsonldMarkup = jsonldMarkup;
   }
 
 })();
