@@ -39,9 +39,11 @@
 
         case 'string':
           var href;
-          if (_key && ((_key === '@type') ||  (_key in ctx && ctx[_key]['@type'] === '@id'))) {
+          if (_key && ((_key === '@type') || (_key in ctx && ctx[_key]['@type'] === '@id'))) {
             if (isUrl(obj)) {
               href = obj;
+            } else if (obj in ctx) {
+              href = iri2url(ctx[obj]['@id'] || ctx[obj], ctx);
             } else if (~obj.indexOf(':') && (obj.split(':')[0] in ctx)) {
               var splt = obj.split(':');
               href = (ctx[splt[0]]['@id'] || ctx[splt[0]]) + splt.slice(1).join(':');
@@ -51,6 +53,7 @@
               href = ctx['@base'] + obj;
             }
           }
+
           var mvalue;
           if (href) {
             mvalue = '<a href="' + href + '">' + obj + '</a>';
@@ -76,10 +79,9 @@
 
 	  return forEach(keys, '{', '}', function(key) {
             var href, isKeywordMapping;
-
             if (key in ctx) {
               if (ctx[key]['@id']) {
-                href = ctx[key]['@id'];
+                href = iri2url(ctx[key]['@id'], ctx);
               } else {
                 // we protect ourselves from case where ctx[key] is for instance {"@container": "@list"}
                 if (typeof ctx[key] === 'object') {
@@ -91,7 +93,7 @@
                     // keyword mapping e.g id -> @id
                     isKeywordMapping = ctx[key];
                   } else {
-                    href = ctx[key];
+                    href = iri2url(ctx[key], ctx);
                   }
                 }
               }
@@ -126,6 +128,17 @@
 
   function isUrl(str) {
     return /^(?:\w+:)?\/\/([^\s\.]+\.\S{2}|localhost[\:?\d]*)\S*$/.test(str);
+  }
+
+  function iri2url(iri, ctx) {
+    if (isUrl(iri)) {
+      return iri;
+    } else {
+      var irisplt = iri.split(':');
+      if (irisplt.length > 1 && (irisplt[0] in ctx)) {
+        return (ctx[irisplt[0]]['@id'] || ctx[irisplt[0]]) + irisplt.slice(1).join(':');
+      }
+    }
   }
 
   function type(obj) {

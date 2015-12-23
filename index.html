@@ -27,7 +27,8 @@
     },
     "funder": [
       {
-        "@id": "http://example.com/bush"
+        "@id": "http://example.com/bush",
+        "@type": "ContributorRole"
       },
       "tednelson",
       "sa:engelbart"
@@ -45,7 +46,7 @@
        "@vocab": "http://schema.org/",
        "id": "@id",
        "sa": "http://ns.science.ai#",
-       "name": "http://ontology/name",
+       "name": "http://ontology.com/name",
        "sameAs": {
          "@container": "@set"
        },
@@ -53,7 +54,8 @@
          "@id": "http://schema.org/funder",
          "@type": "@id",
          "@container": "@list"
-       }
+       },
+       "ContributorRole": "sa:ContributorRole"
      });
     </script>
   </body>
