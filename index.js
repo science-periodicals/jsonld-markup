@@ -56,7 +56,7 @@
 
           var mvalue;
           if (href) {
-            mvalue = '<a href="' + href + '">' + obj + '</a>';
+            mvalue = '<a href="' + href + '" target="_blank">' + obj + '</a>';
           } else {
             mvalue = escape(obj.replace(/\n/g, '\n' + indent));
           }
@@ -64,7 +64,7 @@
 	  return '<span class="jsonld-markup-string">"' + mvalue + '"</span>';
 
         case 'link':
-	  return '<span class="jsonld-markup-string">"<a href="' + escape(obj)+'">'+escape(obj) + '</a>"</span>';
+	  return '<span class="jsonld-markup-string">"<a href="' + escape(obj)+'" target="_blank">'+escape(obj) + '</a>"</span>';
 
         case 'array':
           var isList = _key && (_key in ctx && ctx[_key]['@container'] === '@list');
@@ -111,7 +111,7 @@
             } else {
               var mkey;
               if (href) {
-                mkey = '<a href="' + href + '">' + key + '</a>';
+                mkey = '<a href="' + href + '" target="_blank">' + key + '</a>';
               } else {
                 mkey = key;
               }
