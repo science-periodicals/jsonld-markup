@@ -107,7 +107,7 @@
             }
 
             if (isKeywordMapping) {
-	      return '<span class="jsonld-markup-key-' + isKeywordMapping.slice(1) + '">'+ '<abbr title="' + isKeywordMapping + '">' + key  + '</abbr>:</span> ' + visit(obj[key], key);
+	      return '<span class="jsonld-markup-key-' + isKeywordMapping.slice(1) + '">"'+ '<abbr title="' + isKeywordMapping + '">' + key  + '</abbr>":</span> ' + visit(obj[key], key);
             } else {
               var mkey;
               if (href) {
@@ -115,7 +115,7 @@
               } else {
                 mkey = key;
               }
-	      return '<span class="jsonld-markup-key' + ((key.charAt(0) === '@')? ('-' + key.slice(1)) : '' ) + '">'+ mkey + ':</span> ' + visit(obj[key], key);
+	      return '"<span class="jsonld-markup-key' + ((key.charAt(0) === '@')? ('-' + key.slice(1)) : '' ) + '">'+ mkey + '</span>": ' + visit(obj[key], key);
             }
 	  });
       }
