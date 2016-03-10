@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="jsonld-markup.css">
+    <style>
+     body { padding: 1em; }
+     .logo { margin-bottom: 3px; }
+     .code.column { background-color: rgb(51,51,51); color: white }
+    </style>
+    <title>jsonld-markup example</title>
+  </head>
+  <body>
+
+    <div class="ui middle aligned two column grid">
+      <div class="column">
+        <h4 class="ui header">
+          JSON-LD Markup Prettifier
+        </h4>
+      </div>
+      <div class="right aligned column">
+        from your friends at
+        <a href="http://science.ai/" target="_blank">
+          <img class="ui tiny inline image logo" src="http://science.ai/images/scienceai_logo_v1.1.1_logo.svg" alt="science.ai logo">
+        </a>
+      </div>
+    </div>
+    <div class="ui two column doubling stackable grid">
+      <div class="code column">
+        <h3 class="ui inverted header">Primary Context</h3>
+        <pre><code id="context">
+{
+  "@context": {
+    "@base": "http://example.com/",
+    "@vocab": "http://schema.org/",
+    "id": "@id",
+    "sa": "http://ns.science.ai#",
+    "sameAs": {
+      "@container": "@set"
+    },
+    "founder": {
+      "@id": "http://schema.org/founder",
+      "@type": "@id",
+      "@container": "@list"
+    },
+    "ContributorRole": "sa:ContributorRole"
+  }
+}
+        </code></pre>
+      </div>
+      <div class="code column">
+        <h3 class="ui inverted header">JSON-LD Document</h3>
+        <pre><code id="code">
+{
+  "@context": "http://example.com/context",
+  "@id": "http://example.com",
+  "@type": "Person",
+  "sameAs": [
+    "http://twitter.com/me",
+    "http://facebook.com/me"
+  ],
+  "affiliation": {
+    "id": "http://example.com/corporation",
+    "@type": "Corporation",
+    "name": "Ld inc",
+    "address": {
+      "@type": "PostalAddress",
+      "sa:Country": "USA"
+    },
+    "founder": [
+      {
+        "@id": "http://example.com/bush",
+        "@type": "ContributorRole"
+      },
+      "tednelson",
+      "sa:engelbart"
+    ]
+  }
+}
+        </code></pre>
+      </div>
+    </div>
+    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript">
+     var $context = document.getElementById('context');
+     var $code = document.getElementById('code');
+     var ctx = JSON.parse($context.textContent.trim());
+     var data = JSON.parse($code.textContent.trim());
+     $context.innerHTML = jsonldMarkup(ctx);
+     $code.innerHTML = jsonldMarkup(data, ctx['@context']);
+    </script>
+  </body>
+</html>
