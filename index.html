@@ -32,20 +32,21 @@
     <h3 class="ui inverted header">Primary Context</h3>
     <pre><code id="context">
 {
-  "@context": "http://example.com/context",
-  "@base": "http://example.com/",
-  "@vocab": "http://schema.org/",
-  "id": "@id",
-  "sa": "http://ns.science.ai#",
-  "sameAs": {
-    "@container": "@set"
-  },
-  "funder": {
-    "@id": "http://schema.org/funder",
-    "@type": "@id",
-    "@container": "@list"
-  },
-  "ContributorRole": "sa:ContributorRole"
+  "@context": {
+    "@base": "http://example.com/",
+    "@vocab": "http://schema.org/",
+    "id": "@id",
+    "sa": "http://ns.science.ai#",
+    "sameAs": {
+      "@container": "@set"
+    },
+    "founder": {
+      "@id": "http://schema.org/founder",
+      "@type": "@id",
+      "@container": "@list"
+    },
+    "ContributorRole": "sa:ContributorRole"
+  }
 }
     </code></pre>
       </div>
@@ -53,6 +54,7 @@
     <h3 class="ui inverted header">JSON-LD Document</h3>
     <pre><code id="code">
 {
+  "@context": "http://example.com/context",
   "@id": "http://example.com",
   "@type": "Person",
   "sameAs": [
@@ -67,7 +69,7 @@
       "@type": "PostalAddress",
       "sa:Country": "USA"
     },
-    "funder": [
+    "founder": [
       {
         "@id": "http://example.com/bush",
         "@type": "ContributorRole"
@@ -87,7 +89,7 @@
      var ctx = JSON.parse($context.textContent.trim());
      var data = JSON.parse($code.textContent.trim());
      $context.innerHTML = jsonldMarkup(ctx);
-     $code.innerHTML = jsonldMarkup(data, ctx);
+     $code.innerHTML = jsonldMarkup(data, ctx['@context']);
     </script>
   </body>
 </html>
