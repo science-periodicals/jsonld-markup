@@ -1,0 +1,42 @@
+.jsonld-markup {
+  text-align: left;
+  background-color: rgb(51,51,51);
+  overflow: auto;
+  color: rgb(144,157,181);
+}
+
+.jsonld-markup abbr {
+  text-decoration: underline;
+}
+
+.jsonld-markup a {
+  text-decoration: none;
+}
+.jsonld-markup a:hover {
+  text-decoration: underline;
+}
+
+.jsonld-markup-key-context,
+.jsonld-markup-key-id,
+.jsonld-markup-key-value,
+.jsonld-markup-key-type {
+  color: rgb(202,136,81);
+}
+
+.jsonld-markup-list {
+  color: rgb(189,107,122);
+}
+
+/*
+.jsonld-markup-set {
+color: rgb(79,83,91);
+}
+*/
+
+.jsonld-markup-key a {
+  color: rgb(189,107,122);
+}
+
+.jsonld-markup-string a {
+  color: rgb(137,179,121);
+}
