@@ -39,7 +39,7 @@
 
         case 'string':
           var href;
-          if (_key && ((_key === '@type') || (_key in ctx && ctx[_key]['@type'] === '@id'))) {
+          if (_key && ((_key === '@type') || (_key === '@id') || (_key in ctx && ((ctx[_key] === '@id') || (ctx[_key]['@type'] === '@id'))))) {
             if (isUrl(obj)) {
               href = obj;
             } else if (obj in ctx) {
