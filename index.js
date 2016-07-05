@@ -29,13 +29,13 @@
 
       switch (type(obj)) {
         case 'boolean':
-	  return '<span class="jsonld-markup-bool">' + obj + '</span>';
+          return '<span class="jsonld-markup-bool">' + obj + '</span>';
 
         case 'number':
-	  return '<span class="jsonld-markup-number">' + obj + '</span>';
+          return '<span class="jsonld-markup-number">' + obj + '</span>';
 
         case 'null':
-	  return '<span class="jsonld-markup-null">null</span>\n';
+          return '<span class="jsonld-markup-null">null</span>\n';
 
         case 'string':
           var href;
@@ -61,10 +61,10 @@
             mvalue = escape(obj.replace(/\n/g, '\n' + indent));
           }
 
-	  return '<span class="jsonld-markup-string">"' + mvalue + '"</span>';
+          return '<span class="jsonld-markup-string">"' + mvalue + '"</span>';
 
         case 'link':
-	  return '<span class="jsonld-markup-string">"<a href="' + escape(obj)+'" target="_blank">'+escape(obj) + '</a>"</span>';
+          return '<span class="jsonld-markup-string">"<a href="' + escape(obj)+'" target="_blank">'+escape(obj) + '</a>"</span>';
 
         case 'array':
           var isList = _key && (_key in ctx && ctx[_key]['@container'] === '@list');
@@ -73,11 +73,11 @@
           return forEach(obj, openBracket, closeBracket, visit, _key);
 
         case 'object':
-	  var keys = Object.keys(obj).filter(function(key) {
-	    return obj[key] !== undefined;
-	  });
+          var keys = Object.keys(obj).filter(function(key) {
+            return obj[key] !== undefined;
+          });
 
-	  return forEach(keys, '{', '}', function(key) {
+          return forEach(keys, '{', '}', function(key) {
             var href, isKeywordMapping;
             if (key in ctx) {
               if (ctx[key]['@id']) {
@@ -107,7 +107,7 @@
             }
 
             if (isKeywordMapping) {
-	      return '<span class="jsonld-markup-key-' + isKeywordMapping.slice(1) + '">"'+ '<abbr title="' + isKeywordMapping + '">' + key  + '</abbr>":</span> ' + visit(obj[key], key);
+              return '<span class="jsonld-markup-key-' + isKeywordMapping.slice(1) + '">"'+ '<abbr title="' + isKeywordMapping + '">' + key  + '</abbr>":</span> ' + visit(obj[key], key);
             } else {
               var mkey;
               if (href) {
@@ -115,9 +115,9 @@
               } else {
                 mkey = key;
               }
-	      return '"<span class="jsonld-markup-key' + ((key.charAt(0) === '@')? ('-' + key.slice(1)) : '' ) + '">'+ mkey + '</span>": ' + visit(obj[key], key);
+              return '"<span class="jsonld-markup-key' + ((key.charAt(0) === '@')? ('-' + key.slice(1)) : '' ) + '">'+ mkey + '</span>": ' + visit(obj[key], key);
             }
-	  });
+          });
       }
 
       return '';
