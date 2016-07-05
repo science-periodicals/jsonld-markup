@@ -1,6 +1,6 @@
 {
   "name": "jsonld-markup",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Pretty print JSON-LD to HTML, adding hyperlinks to the keys (from the JSON-LD context)",
   "main": "index.js",
   "repository": {
