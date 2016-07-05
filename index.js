@@ -58,7 +58,12 @@
           if (href) {
             mvalue = '<a href="' + href + '" target="_blank">' + obj + '</a>';
           } else {
-            mvalue = escape(obj.replace(/\n/g, '\n' + indent));
+            mvalue = escape(
+              obj.replace(/\n/g, '\n' + indent)
+                  .replace(/([\u0000-\u001f])/g, function (_, c) {
+                    return '\\u' + pad(c.codePointAt(0).toString(16));
+                  })
+            );
           }
 
           return '<span class="jsonld-markup-string">"' + mvalue + '"</span>';
@@ -152,6 +157,11 @@
   function escape(str) {
     return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
   };
+
+  function pad (str) {
+    for (var i = str.length; i < 4; i++) str = '0' + str;
+    return str;
+  }
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = jsonldMarkup;
