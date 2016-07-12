@@ -35,7 +35,7 @@
           return '<span class="jsonld-markup-number">' + obj + '</span>';
 
         case 'null':
-          return '<span class="jsonld-markup-null">null</span>\n';
+          return '<span class="jsonld-markup-null">null</span>';
 
         case 'string':
           var href;
