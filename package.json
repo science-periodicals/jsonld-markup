@@ -5,16 +5,16 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/scienceai/jsonld-markup.git"
+    "url": "git://github.com/science-periodicals/jsonld-markup.git"
   },
   "keywords": [
     "jsonld",
     "html"
   ],
-  "author": "Sebastien Ballesteros <sebastien@standardanalytics.io>",
+  "author": "Sebastien Ballesteros <sebastien.ballesteros@gmail.com>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/scienceai/jsonld-markup/issues"
+    "url": "https://github.com/science-periodicals/jsonld-markup/issues"
   },
-  "homepage": "https://github.com/scienceai/jsonld-markup"
+  "homepage": "https://github.com/science-periodicals/jsonld-markup"
 }
